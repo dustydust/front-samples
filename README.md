@@ -1,1 +1,1 @@
-# front-samples
+# sample

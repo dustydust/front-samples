@@ -4,48 +4,89 @@ import { NavLink } from 'react-router-dom';
 import { HLayout, HLayoutItem, VLayout, VLayoutItem } from 'react-flexbox-layout';
 
 import { fullName } from 'utils/name';
-import { getStudentAvatar } from 'utils/studentAvatar';
 
 class DashboardLeftBar extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedId: "",
+    };
+  }
+
   static propTypes = {
-    students: PropTypes.array.isRequired,
+    entries: PropTypes.array.isRequired,
   };
 
   render() {
+    const entries = this.props.entries;
 
-    const students = this.props.students;
     return (
       <div>
-        <h3 style={titleStyle}>Students</h3>
-        {students.map(this._renderStudent)}
+        <h3 style={titleStyle}>{this.props.barHeader}</h3>
+        {entries.map(entry => this._renderEntry(entry))}
       </div>
     )
   }
 
-  _renderStudent(student) {
+  _renderEntry = entry => {
+    let activeBlockStyle = "";
+    if (this.state.selectedId == entry._id) {
+      activeBlockStyle = selectedEntryStyle;
+    }
+
+    if (entry.link) {
+      return (
+        <NavLink
+          key={entry._id}
+          to={entry.link}
+          style={entryStyle}
+          activeStyle={selectedEntryStyle}
+        >
+          {this._renderEntryBody(entry)}
+        </NavLink>
+      );
+    } else {
+      return (
+        <div
+          key={entry._id}
+          style={{
+            ...entryStyle,
+            ...activeBlockStyle,
+          }}
+          onClick={() => this._onEntryClick(entry)}
+        >
+          {this._renderEntryBody(entry)}
+        </div>
+      )
+    }
+  }
+
+  _renderEntryBody = entry => {
     const label = "";
+
     return (
-      <NavLink
-        key={student._id}
-        to={`/students/${student._id}`}
-        style={entryStyle}
-        activeStyle={selectedEntryStyle}
-      >
-        <HLayout key={student._id} height="100%" alignItems="middle" gutter={7}>
-          <div
-            style={{
-              ...studentAvatarStyle,
-              backgroundImage: `url(${getStudentAvatar(student)})`,
-            }}
-          />
-          <HLayoutItem flexGrow style={studentNameStyle}>
-            <span>{fullName(student)}</span>
-          </HLayoutItem>
-          <span>{label}</span>
-        </HLayout>
-      </NavLink>
+      <HLayout key={entry._id} height="100%" alignItems="middle" gutter={7}>
+        <div
+          style={{
+            ...entryAvatarStyle,
+            backgroundImage: `url(${this.props.getAvatar(entry)})`,
+          }}
+        />
+        <HLayoutItem flexGrow style={entryNameStyle}>
+          <span>{fullName(entry) || entry.name}</span>
+        </HLayoutItem>
+        <span>{label}</span>
+      </HLayout>
     );
+  }
+
+  _onEntryClick(entry) {
+    this.setState({
+      selectedId: entry._id,
+    })
+    this.props.onEntryClick(entry);
   }
 }
 
@@ -67,6 +108,7 @@ const entryStyle = {
   backgroundColor: "white",
   textDecoration: "none",
   color: "black",
+  cursor: "pointer",
 };
 
 const selectedEntryStyle = {
@@ -75,13 +117,13 @@ const selectedEntryStyle = {
   cursor: "default",
 };
 
-const studentNameStyle = {
+const entryNameStyle = {
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
 };
 
-const studentAvatarStyle = {
+const entryAvatarStyle = {
   height: "3rem",
   width: "3rem",
   margin: "0 0.6rem",

@@ -1,7 +1,7 @@
-import last from "lodash/last";
-import includes from "lodash/includes";
-import without from "lodash/without";
-import omit from "lodash/omit";
+import last               from "lodash/last";
+import includes           from "lodash/includes";
+import without            from "lodash/without";
+import omit               from "lodash/omit";
 import React              from "react";
 import Modal              from "react-modal";
 
@@ -25,7 +25,6 @@ if (bodyElement && typeof Modal.setAppElement === "function") {
 
 let openModals = [];
 addEventListener(document, "keyup", (e) => {
-  console.log('WW', openModals);
   if (e.keyCode === 27) {
     const currentModal = last(openModals);
     currentModal && currentModal.props.onRequestHide && currentModal.props.onRequestHide();
